@@ -50,6 +50,7 @@ QEMU_CMD = qemu-system-aarch64 $(QEMU_ARGS)
 QEMU_ARGS = \
 	-M raspi3 		\
 	-d in_asm 		\
+	-display none \
 	-serial stdio \
 
 # =====================================
