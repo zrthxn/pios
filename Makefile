@@ -55,21 +55,21 @@ QEMU_ARGS = \
 # =====================================
 # Targets -----------------------------
 
-.PHONY: all boot clean qemu
+.PHONY: all boot qemu clean
 
-all: boot build clean qemu
-
-qemu:
-	@$(OBJCOPY) $(KERNEL_ELF) $(KERNEL_BIN)
-	$(QEMU_CMD) -kernel $(KERNEL_BIN)
+all: boot build qemu clean
 
 boot:
 	$(call colorecho, "Assembling Bootloader")
 	$(ASSEMBLER_CMD) -c $(BOOT_SRC) -o $(BOOT_OBJ)
 
-build:
+build: boot
 	$(call colorecho, "Compiling Kernel")
 	@RUSTFLAGS="$(RUSTFLAGS)" $(RUSTC_CMD)
+
+qemu: boot build
+	@$(OBJCOPY) $(KERNEL_ELF) $(KERNEL_BIN)
+	$(QEMU_CMD) -kernel $(KERNEL_BIN)
 
 clean:
 	$(call colorecho, "Cleanup")
