@@ -24,25 +24,25 @@ KERNEL_BIN = target/$(TARGET_RUSTC)/release/kernel.img
 
 # Bootloader assembler 
 ASSEMBLER_CMD = aarch64-none-elf-gcc $(ASSEMBLER_ARGS)
-ASSEMBLER_ARGS = \
-	-mcpu=$(TARGET_CPU)							\
-	-mtune=$(TARGET_CPU)						\
-	-march=$(TARGET_ARCH)						\
-	-mlittle-endian 								\
-	-fpic														\
+ASSEMBLER_ARGS =	\
+	-mcpu=$(TARGET_CPU)		\
+	-mtune=$(TARGET_CPU)	\
+	-march=$(TARGET_ARCH)	\
+	-mlittle-endian				\
+	-fpic									\
 
 
 # rustc compiler
 RUSTC_CMD = cargo +nightly rustc $(RUSTC_ARGS)
-RUSTC_ARGS = \
+RUSTC_ARGS =	\
 	--target=$(TARGET_RUSTC)	\
-	--features bsp_rpi3 			\
-	--release 								\
+	--features bsp_rpi3				\
+	--release									\
 
 RUSTC_TCPU = -C target-cpu=$(TARGET_CPU)
 RUSTC_LINK = -C link-arg=-T$(LINKER_FILE) -C link-arg=$(BOOT_OBJ)
-# RUSTC_NICE = -D warnings -D missing_docs
-RUSTFLAGS = $(RUSTC_TCPU) $(RUSTC_LINK) #$(RUSTC_NICE)
+# RUSTC_NICE = -D warnings #-D missing_docs
+RUSTFLAGS = $(RUSTC_TCPU) $(RUSTC_LINK) # $(RUSTC_NICE)
 
 # QEMU run
 OBJCOPY = aarch64-none-elf-objcopy --strip-all -O binary 
@@ -55,9 +55,9 @@ QEMU_ARGS = \
 # =====================================
 # Targets -----------------------------
 
-.PHONY: all boot qemu clean
+.PHONY: all boot clean qemu
 
-all: boot build qemu clean
+all: boot build clean qemu
 
 boot:
 	$(call colorecho, "Assembling Bootloader")
@@ -67,7 +67,7 @@ build: boot
 	$(call colorecho, "Compiling Kernel")
 	@RUSTFLAGS="$(RUSTFLAGS)" $(RUSTC_CMD)
 
-qemu: boot build
+qemu: boot build clean
 	@$(OBJCOPY) $(KERNEL_ELF) $(KERNEL_BIN)
 	$(QEMU_CMD) -kernel $(KERNEL_BIN)
 

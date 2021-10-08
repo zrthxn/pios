@@ -7,11 +7,11 @@ struct QEMUOutput {
 }
 
 impl QEMUOutput {
-  // pub fn new() -> Self {
-  //   Self {
-  //     chars_written: 0
-  //   }
-  // }
+  pub fn new() -> Self {
+    Self {
+      chars_written: 0
+    }
+  }
 
   pub fn write_char(&mut self, c: char) {
     unsafe {
@@ -25,8 +25,8 @@ impl QEMUOutput {
 impl fmt::Write for QEMUOutput {
   fn write_str(&mut self, s: &str) -> fmt::Result {
     for c in s.chars() {
+      // Convert LF to CRLF
       if c == '\n' {
-        // Convert LF (\n) to CRLF (\r\n)
         self.write_char('\r')
       }
 
@@ -43,13 +43,13 @@ pub struct SafeQEMUOutput {
   inner: NullLock<QEMUOutput>
 }
 
-// impl SafeQEMUOutput {
-//   pub fn new() -> Self {
-//     Self {
-//       inner: NullLock::new(QEMUOutput::new())
-//     }
-//   }
-// }
+impl SafeQEMUOutput {
+  pub fn new() -> Self {
+    Self {
+      inner: NullLock::new(QEMUOutput::new())
+    }
+  }
+}
 
 static QEMU: SafeQEMUOutput = SafeQEMUOutput {
   inner: NullLock::new(
