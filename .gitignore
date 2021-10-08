@@ -1,0 +1,8 @@
+# No run logs
+.vscode/*.log
+
+# No compiled targets
+/target
+
+# No object files
+*.o

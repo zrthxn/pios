@@ -1,0 +1,20 @@
+[package]
+name = "pios"
+version = "0.1.0"
+edition = "2018"
+
+[profile.release]
+lto = true
+
+[features]
+default = []
+bsp_rpi3 = []
+bsp_rpi4 = []
+
+[[bin]]
+name = "pios"
+path = "src/main.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]

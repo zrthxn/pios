@@ -1,0 +1,11 @@
+{
+  "rust-analyzer.cargo.target": "aarch64-unknown-none-softfloat",
+  "rust-analyzer.cargo.features": ["bsp_rpi3"],
+  "rust-analyzer.lens.debug": false,
+  "rust-analyzer.lens.run": false,
+  "rust-analyzer.checkOnSave.overrideCommand": [
+    "./cargo",
+    "xcheck",
+    "--json-output"
+  ]
+}
