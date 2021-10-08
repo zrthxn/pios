@@ -33,7 +33,7 @@ ASSEMBLER_ARGS = \
 
 
 # rustc compiler
-RUSTC_CMD = cargo rustc $(RUSTC_ARGS)
+RUSTC_CMD = cargo +nightly rustc $(RUSTC_ARGS)
 RUSTC_ARGS = \
 	--target=$(TARGET_RUSTC)	\
 	--features bsp_rpi3 			\
@@ -49,7 +49,6 @@ OBJCOPY = aarch64-none-elf-objcopy --strip-all -O binary
 QEMU_CMD = qemu-system-aarch64 $(QEMU_ARGS)
 QEMU_ARGS = \
 	-M raspi3 		\
-	-d in_asm 		\
 	-display none \
 	-serial stdio \
 

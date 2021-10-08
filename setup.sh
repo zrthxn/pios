@@ -23,3 +23,5 @@ ln -s /usr/local/bin/gcc-aarch64/bin/aarch64-none-elf-objdump /usr/local/bin/aar
 ln -s /usr/local/bin/gcc-aarch64/bin/aarch64-none-elf-readelf /usr/local/bin/aarch64-none-elf-readelf
 
 rm -rf gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf
+
+rustup +nightly target add aarch64-unknown-none-softfloat
