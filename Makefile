@@ -17,6 +17,7 @@ TARGET_CPU = cortex-a53
 TARGET_ARCH = armv8-a
 TARGET_RUSTC = aarch64-unknown-none-softfloat
 KERNEL_ELF = target/$(TARGET_RUSTC)/release/pios
+KERNEL_BIN = target/$(TARGET_RUSTC)/release/kernel.img
 
 # =====================================
 # Cmdlets -----------------------------
@@ -43,6 +44,13 @@ RUSTC_LINK = -C link-arg=-T$(LINKER_FILE) -C link-arg=$(BOOT_OBJ)
 # RUSTC_NICE = -D warnings -D missing_docs
 RUSTFLAGS = $(RUSTC_TCPU) $(RUSTC_LINK) #$(RUSTC_NICE)
 
+# QEMU run
+OBJCOPY = aarch64-none-elf-objcopy --strip-all -O binary 
+QEMU_CMD = qemu-system-aarch64 $(QEMU_ARGS)
+QEMU_ARGS = \
+	-M raspi3 		\
+	-d in_asm 		\
+	-serial stdio \
 
 # =====================================
 # Targets -----------------------------
@@ -52,7 +60,8 @@ RUSTFLAGS = $(RUSTC_TCPU) $(RUSTC_LINK) #$(RUSTC_NICE)
 all: boot build clean qemu
 
 qemu:
-	qemu-system-aarch64 -M raspi3 -d in_asm -display none -kernel $(KERNEL_ELF)
+	@$(OBJCOPY) $(KERNEL_ELF) $(KERNEL_BIN)
+	$(QEMU_CMD) -kernel $(KERNEL_BIN)
 
 boot:
 	$(call colorecho, "Assembling Bootloader")
