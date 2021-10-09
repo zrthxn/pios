@@ -1,6 +1,3 @@
-LINKER_FILE = bsp/rpi3/linker.ld
-export LINKER_FILE
-
 define colorecho
 	@tput setaf 6 2> /dev/null || true
 	@echo $1
@@ -11,6 +8,9 @@ endef
 # =====================================
 # Variables----------------------------
 
+LINKER_FILE = linker/rpi3.ld
+export LINKER_FILE
+
 BOOT_SRC = boot/boot.S
 BOOT_OBJ = boot/boot.o
 TARGET_CPU = cortex-a53
@@ -19,17 +19,19 @@ TARGET_RUSTC = aarch64-unknown-none-softfloat
 KERNEL_ELF = target/$(TARGET_RUSTC)/release/pios
 KERNEL_BIN = target/$(TARGET_RUSTC)/release/kernel.img
 
+
 # =====================================
 # Cmdlets -----------------------------
 
 # Bootloader assembler 
 ASSEMBLER_CMD = aarch64-none-elf-gcc $(ASSEMBLER_ARGS)
 ASSEMBLER_ARGS =	\
-	-mcpu=$(TARGET_CPU)		\
-	-mtune=$(TARGET_CPU)	\
-	-march=$(TARGET_ARCH)	\
-	-mlittle-endian				\
-	-fpic									\
+	-mcpu=$(TARGET_CPU)			\
+	-mtune=$(TARGET_CPU)		\
+	-march=$(TARGET_ARCH)		\
+	-mlittle-endian					\
+	-mfix-cortex-a53-835769	\
+	-fpic										\
 
 
 # rustc compiler
@@ -41,7 +43,7 @@ RUSTC_ARGS =	\
 
 RUSTC_TCPU = -C target-cpu=$(TARGET_CPU)
 RUSTC_LINK = -C link-arg=-T$(LINKER_FILE) -C link-arg=$(BOOT_OBJ)
-# RUSTC_NICE = -D warnings #-D missing_docs
+# RUSTC_NICE = -D warnings -D missing_docs
 RUSTFLAGS = $(RUSTC_TCPU) $(RUSTC_LINK) # $(RUSTC_NICE)
 
 # QEMU run
@@ -51,6 +53,7 @@ QEMU_ARGS = \
 	-M raspi3 		\
 	-display none \
 	-serial stdio \
+
 
 # =====================================
 # Targets -----------------------------
@@ -74,4 +77,3 @@ qemu: boot build clean
 clean:
 	$(call colorecho, "Cleanup")
 	rm $(BOOT_OBJ) 
-
