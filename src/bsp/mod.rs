@@ -1,6 +1,7 @@
-pub mod console;
-
-#[cfg(any(feature = "bsp_rpi3", feature = "bsp_rpi4"))]
+pub mod devices;
+pub mod raspi;
+pub mod serial;
+pub mod qemu;
 
 #[no_mangle]
 #[link_section = ".text._start_arguments"]

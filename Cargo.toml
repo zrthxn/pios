@@ -8,8 +8,8 @@ lto = true
 
 [features]
 default = []
-bsp_rpi3 = []
-bsp_rpi4 = []
+bsp_rpi3 = ["tock-registers"]
+bsp_rpi4 = ["tock-registers"]
 
 [[bin]]
 name = "pios"
@@ -18,8 +18,8 @@ path = "src/main.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+tock-registers = { version = "0.7.x", optional = true, default-features = false, features = ["register_types"] }
 
 # Platform specific dependencies
 [target.'cfg(target_arch = "aarch64")'.dependencies]
-tock-registers = "0.7.0"
-cortex-a = "6.1.0"
+cortex-a = { version = "6.x.x" }

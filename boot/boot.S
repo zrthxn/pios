@@ -12,9 +12,6 @@
 
 .section ".text._start"
 
-.global	_start
-.type	_start, function
-
 _start:
   // Only proceed on the boot core. Park it otherwise.
 	mrs	x1, MPIDR_EL1
@@ -53,3 +50,5 @@ _start:
 	b	.park
 
 .size	_start, . - _start
+.global	_start
+.type	_start, function

@@ -19,27 +19,29 @@ TARGET_RUSTC = aarch64-unknown-none-softfloat
 KERNEL_ELF = target/$(TARGET_RUSTC)/release/pios
 KERNEL_BIN = target/$(TARGET_RUSTC)/release/kernel.img
 
+BSP ?= rpi3
+DEV_SERIAL ?= /dev/ttyUSB0
 
 # =====================================
 # Cmdlets -----------------------------
 
 # Bootloader assembler 
 ASSEMBLER_CMD = aarch64-none-elf-gcc $(ASSEMBLER_ARGS)
-ASSEMBLER_ARGS =	\
-	-mcpu=$(TARGET_CPU)			\
-	-mtune=$(TARGET_CPU)		\
-	-march=$(TARGET_ARCH)		\
-	-mlittle-endian					\
-	-mfix-cortex-a53-835769	\
-	-fpic										\
+ASSEMBLER_ARGS = \
+	-mcpu=$(TARGET_CPU)     \
+	-mtune=$(TARGET_CPU)    \
+	-march=$(TARGET_ARCH)   \
+	-mlittle-endian         \
+	-mfix-cortex-a53-835769 \
+	-fpic                   \
 
 
 # rustc compiler
 RUSTC_CMD = cargo +nightly rustc $(RUSTC_ARGS)
-RUSTC_ARGS =	\
-	--target=$(TARGET_RUSTC)	\
-	--features bsp_rpi3				\
-	--release									\
+RUSTC_ARGS = \
+	--target=$(TARGET_RUSTC)  \
+	--features bsp_rpi4       \
+	--release                 \
 
 RUSTC_TCPU = -C target-cpu=$(TARGET_CPU)
 RUSTC_LINK = -C link-arg=-T$(LINKER_FILE) -C link-arg=$(BOOT_OBJ)
@@ -50,7 +52,7 @@ RUSTFLAGS = $(RUSTC_TCPU) $(RUSTC_LINK) # $(RUSTC_NICE)
 OBJCOPY = aarch64-none-elf-objcopy --strip-all -O binary 
 QEMU_CMD = qemu-system-aarch64 $(QEMU_ARGS)
 QEMU_ARGS = \
-	-M raspi3 		\
+	-M raspi3     \
 	-display none \
 	-serial stdio \
 
@@ -58,9 +60,9 @@ QEMU_ARGS = \
 # =====================================
 # Targets -----------------------------
 
-.PHONY: all boot clean qemu
+.PHONY: all boot build kernel clean qemu
 
-all: boot build clean qemu
+all: boot build kernel clean
 
 boot:
 	$(call colorecho, "Assembling Bootloader")
@@ -70,8 +72,12 @@ build: boot
 	$(call colorecho, "Compiling Kernel")
 	@RUSTFLAGS="$(RUSTFLAGS)" $(RUSTC_CMD)
 
-qemu: boot build clean
+kernel: boot build
+	$(call colorecho, "Building Kernel image")
 	@$(OBJCOPY) $(KERNEL_ELF) $(KERNEL_BIN)
+
+qemu: boot build kernel
+	$(call colorecho, "Run QEMU")
 	$(QEMU_CMD) -kernel $(KERNEL_BIN)
 
 clean:

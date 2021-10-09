@@ -1,13 +1,32 @@
 //! A panic handler that infinitely waits.
-use crate::{cpu, println};
-use core::panic::PanicInfo;
+use crate::{bsp, cpu, println};
+use core::{fmt, panic::PanicInfo};
+
+fn _panic_print(args: fmt::Arguments) {
+  use fmt::Write;
+  use crate::console::interface::Writeable;
+  bsp::qemu::serial().write_fmt(args).unwrap();
+  // unsafe { 
+  //   bsp::qemu::serial().write_fmt(args).unwrap() 
+  // };
+}
+
+/// Prints with a newline - only use from the panic handler.
+///
+/// Carbon copy from <https://doc.rust-lang.org/src/std/macros.rs.html>
+#[macro_export]
+macro_rules! panic_println {
+  ($($arg:tt)*) => ({
+    _panic_print(format_args_nl!($($arg)*));
+  })
+}
 
 #[panic_handler]
-fn panicinf(_info: &PanicInfo) -> ! {
+fn panic(_info: &PanicInfo) -> ! {
   if let Some(args) = _info.message() {
-    println!("\n[kernel panic!] Spooked by {}", args);
+    panic_println!("\n[kernel panic!] Spooked by {}", args);
   } else {
-    println!("\n[kernel panic!]");
+    panic_println!("\n[kernel panic!]");
   }
 
   cpu::halt()

@@ -2,7 +2,7 @@ use crate::{console, sync::NullLock, sync::interface::Mutex};
 use core::fmt;
 
 /// A mystical, magical device for generating QEMU output out of the void.
-struct QEMUOutput {
+pub struct QEMUOutput {
   chars_written: usize,
 }
 
@@ -51,19 +51,19 @@ impl SafeQEMUOutput {
   }
 }
 
-static QEMU: SafeQEMUOutput = SafeQEMUOutput {
-  inner: NullLock::new(
-    QEMUOutput {
-      chars_written: 0
-    }
-  )
-};
-
 /// Passthrough of `args` to the `core::fmt::Write` implementation,
 /// but guarded by a Mutex to serialize access.
 impl console::interface::Writeable for SafeQEMUOutput {
+  fn write_char(&self, c: char) {
+    unimplemented!()    
+  }
+
   fn write_fmt(&self, args: core::fmt::Arguments) -> fmt::Result {
     self.inner.lock(|inner: &mut QEMUOutput| fmt::Write::write_fmt(inner, args))
+  }
+
+  fn flush(&self) {
+    unimplemented!()
   }
 }
 
@@ -73,7 +73,18 @@ impl console::interface::History for SafeQEMUOutput {
   }
 }
 
+/// Static variable to access globally usable safe QEMU output.
+/// 
+/// Accessed via `serial` method to get a global reference. 
+static QEMU: SafeQEMUOutput = SafeQEMUOutput {
+  inner: NullLock::new(
+    QEMUOutput {
+      chars_written: 0
+    }
+  )
+};
+
 /// Return a reference to the console.
-pub fn console() -> &'static impl console::interface::Interactive {
+pub fn serial() -> &'static SafeQEMUOutput {
   &QEMU
 }
