@@ -7,7 +7,7 @@ pub struct QEMUOutput {
 }
 
 impl QEMUOutput {
-  pub fn new() -> Self {
+  pub fn _new() -> Self {
     Self {
       chars_written: 0
     }
@@ -44,17 +44,17 @@ pub struct SafeQEMUOutput {
 }
 
 impl SafeQEMUOutput {
-  pub fn new() -> Self {
+  pub fn _new() -> Self {
     Self {
-      inner: NullLock::new(QEMUOutput::new())
+      inner: NullLock::new(QEMUOutput::_new())
     }
   }
 }
 
 /// Passthrough of `args` to the `core::fmt::Write` implementation,
 /// but guarded by a Mutex to serialize access.
-impl console::interface::Writeable for SafeQEMUOutput {
-  fn write_char(&self, c: char) {
+impl console::interface::Write for SafeQEMUOutput {
+  fn write_char(&self, _c: char) {
     unimplemented!()    
   }
 
@@ -67,7 +67,7 @@ impl console::interface::Writeable for SafeQEMUOutput {
   }
 }
 
-impl console::interface::History for SafeQEMUOutput {
+impl console::interface::Statistics for SafeQEMUOutput {
   fn chars_written(&self) -> usize {
     self.inner.lock(|inner: &mut QEMUOutput| inner.chars_written)
   }
@@ -76,7 +76,7 @@ impl console::interface::History for SafeQEMUOutput {
 /// Static variable to access globally usable safe QEMU output.
 /// 
 /// Accessed via `serial` method to get a global reference. 
-static QEMU: SafeQEMUOutput = SafeQEMUOutput {
+static _QEMU: SafeQEMUOutput = SafeQEMUOutput {
   inner: NullLock::new(
     QEMUOutput {
       chars_written: 0
@@ -85,6 +85,6 @@ static QEMU: SafeQEMUOutput = SafeQEMUOutput {
 };
 
 /// Return a reference to the console.
-pub fn serial() -> &'static SafeQEMUOutput {
-  &QEMU
+pub fn _serial() -> &'static SafeQEMUOutput {
+  &_QEMU
 }

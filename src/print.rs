@@ -1,11 +1,12 @@
-use crate::{bsp, console};
+use crate::bsp;
 use core::fmt;
 
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
-  use crate::console::interface::Writeable;
-
-  bsp::qemu::serial().write_fmt(args).unwrap();
+  // use crate::console::interface::Interactive;
+  // bsp::serial::serial().write_fmt(args).unwrap();
+  use crate::console::interface::Interactive;
+  bsp::qemu::_serial().write_fmt(args).unwrap();
 }
 
 /// Prints without a newline.

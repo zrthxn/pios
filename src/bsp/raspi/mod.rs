@@ -10,7 +10,6 @@ pub static GPIO: devices::bcm2xxx::GPIO =
 pub static UART: devices::bcm2xxx::PL011UART =
   unsafe { devices::bcm2xxx::PL011UART::new(memory::map::mmio::PL011_UART_START) };
 
-
 /// Board identification.
 pub fn board_name() -> &'static str {
   #[cfg(feature = "bsp_rpi3")]

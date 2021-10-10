@@ -1,14 +1,12 @@
 //! A panic handler that infinitely waits.
-use crate::{bsp, cpu, println};
+use crate::{bsp, cpu};
 use core::{fmt, panic::PanicInfo};
 
 fn _panic_print(args: fmt::Arguments) {
-  use fmt::Write;
-  use crate::console::interface::Writeable;
-  bsp::qemu::serial().write_fmt(args).unwrap();
-  // unsafe { 
-  //   bsp::qemu::serial().write_fmt(args).unwrap() 
-  // };
+  // use fmt::Write;
+  // unsafe { bsp::serial::panic_serial().write_fmt(args).unwrap() };
+  use crate::console::interface::Interactive;
+  bsp::qemu::_serial().write_fmt(args).unwrap();
 }
 
 /// Prints with a newline - only use from the panic handler.

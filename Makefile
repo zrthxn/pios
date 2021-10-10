@@ -14,10 +14,9 @@ export LINKER_FILE
 BOOT_SRC = boot/boot.S
 BOOT_OBJ = boot/boot.o
 TARGET_CPU = cortex-a53
-TARGET_ARCH = armv8-a
 TARGET_RUSTC = aarch64-unknown-none-softfloat
 KERNEL_ELF = target/$(TARGET_RUSTC)/release/pios
-KERNEL_BIN = target/$(TARGET_RUSTC)/release/kernel.img
+KERNEL_BIN = target/$(TARGET_RUSTC)/release/kernel8.img
 
 BSP ?= rpi3
 DEV_SERIAL ?= /dev/ttyUSB0
@@ -30,7 +29,6 @@ ASSEMBLER_CMD = aarch64-none-elf-gcc $(ASSEMBLER_ARGS)
 ASSEMBLER_ARGS = \
 	-mcpu=$(TARGET_CPU)     \
 	-mtune=$(TARGET_CPU)    \
-	-march=$(TARGET_ARCH)   \
 	-mlittle-endian         \
 	-mfix-cortex-a53-835769 \
 	-fpic                   \

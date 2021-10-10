@@ -31,7 +31,7 @@ pub unsafe fn _start_rust() {
 
   println!("[-] Init Boot");
 
-  for (i, _driver) in driver::manager().list_drivers().iter().enumerate() {
+  for _driver in driver::manager().list_drivers().iter() {
     print!("\t[-] Loading ({})", _driver.compatible());
     if let Err(e) = _driver.init() {
       panic!("\t[x] Error loading driver: {}: {}", _driver.compatible(), e);
@@ -42,12 +42,13 @@ pub unsafe fn _start_rust() {
   println!("[-] Drivers Initialized\n");
   driver::manager().on_initialized();
 
-  __init__()
+  __main__()
 }
 
 /// Init Rust code
-fn __init__() {
-  use bsp::serial::serial;
+#[no_mangle]
+fn __main__() {
+  // use bsp::serial::serial;
   use console::interface::Interactive;
   use driver::interface::DriverManager;
 

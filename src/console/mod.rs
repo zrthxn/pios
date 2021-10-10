@@ -2,7 +2,7 @@ pub mod interface {
   use core::fmt;
 
   /// Console write functions.
-  pub trait Writeable {
+  pub trait Write {
     /// Write a single character.
     fn write_char(&self, c: char);
 
@@ -14,7 +14,7 @@ pub mod interface {
   }
 
   /// Console read functions.
-  pub trait Readable {
+  pub trait Read {
     /// Read a single character.
     fn read_char(&self) -> char {
       ' '
@@ -24,7 +24,7 @@ pub mod interface {
     fn clear_rx(&self);
   }
 
-  pub trait History {
+  pub trait Statistics {
     /// Return the number of characters written.
     fn chars_written(&self) -> usize {
       0
@@ -36,5 +36,5 @@ pub mod interface {
     }
   }
 
-  pub trait Interactive = Readable + Writeable + History;
+  pub trait Interactive = Read + Write + Statistics;
 }

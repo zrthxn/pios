@@ -5,7 +5,7 @@
 //! - <https://github.com/raspberrypi/documentation/files/1888662/BCM2837-ARM-Peripherals.-.Revised.-.V2-1.pdf>
 //! - <https://developer.arm.com/documentation/ddi0183/latest>
 
-use crate::{console, cpu, driver, println, sync};
+use crate::{console, cpu, driver};
 use crate::bsp::devices::common::MMIODerefWrapper;
 use crate::sync::{NullLock, interface::Mutex};
 use core::fmt;
@@ -341,7 +341,7 @@ impl driver::interface::DeviceDriver for PL011UART {
   }
 }
 
-impl console::interface::Writeable for PL011UART {
+impl console::interface::Write for PL011UART {
   /// Passthrough of `args` to the `core::fmt::Write` implementation, but guarded by a Mutex to
   /// serialize access.
   fn write_char(&self, c: char) {
@@ -360,7 +360,7 @@ impl console::interface::Writeable for PL011UART {
   }
 }
 
-impl console::interface::Readable for PL011UART {
+impl console::interface::Read for PL011UART {
   fn read_char(&self) -> char {
     self.inner
       .lock(|inner| inner.read_char_converting(BlockingMode::Blocking).unwrap())
@@ -376,7 +376,7 @@ impl console::interface::Readable for PL011UART {
   }
 }
 
-impl console::interface::History for PL011UART {
+impl console::interface::Statistics for PL011UART {
   fn chars_written(&self) -> usize {
     self.inner.lock(|inner| inner.chars_written)
   }
