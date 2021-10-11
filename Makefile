@@ -44,10 +44,10 @@ RUSTC_ARGS = \
 RUSTC_TCPU = -C target-cpu=$(TARGET_CPU)
 RUSTC_LINK = -C link-arg=-T$(LINKER_FILE) -C link-arg=$(BOOT_OBJ)
 # RUSTC_NICE = -D warnings -D missing_docs
-RUSTFLAGS = $(RUSTC_TCPU) $(RUSTC_LINK) # $(RUSTC_NICE)
+RUSTFLAGS = $(RUSTC_TCPU) $(RUSTC_LINK)# $(RUSTC_NICE)
 
 # QEMU run
-OBJCOPY = aarch64-none-elf-objcopy --strip-all -O binary 
+OBJCOPY = aarch64-none-elf-objcopy --strip-all -O binary
 QEMU_CMD = qemu-system-aarch64 $(QEMU_ARGS)
 QEMU_ARGS = \
 	-M raspi3     \
@@ -68,11 +68,11 @@ boot:
 
 build: boot
 	$(call colorecho, "Compiling Kernel")
-	@RUSTFLAGS="$(RUSTFLAGS)" $(RUSTC_CMD)
+	RUSTFLAGS="$(RUSTFLAGS)" $(RUSTC_CMD)
 
 kernel: boot build
 	$(call colorecho, "Building Kernel image")
-	@$(OBJCOPY) $(KERNEL_ELF) $(KERNEL_BIN)
+	$(OBJCOPY) $(KERNEL_ELF) $(KERNEL_BIN)
 
 qemu: boot build kernel
 	$(call colorecho, "Run QEMU")
