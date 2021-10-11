@@ -27,7 +27,7 @@ mod sync;
 #[no_mangle]
 pub unsafe fn _start_rust() {
   use crate::driver::interface::DriverManager;
-  use crate::bsp::raspi::driver;
+  use crate::bsp::driver;
 
   println!("[-] Init Boot");
 
@@ -48,19 +48,19 @@ pub unsafe fn _start_rust() {
 /// Init Rust code
 #[no_mangle]
 fn __main__() {
-  // use bsp::serial::serial;
-  use console::interface::Interactive;
-  use driver::interface::DriverManager;
+  use crate::bsp::{raspi, driver};
+  use crate::console::interface::Interactive;
+  use crate::driver::interface::DriverManager;
 
   println!(
     "[0] {} version {}",
     env!("CARGO_PKG_NAME"),
     env!("CARGO_PKG_VERSION")
   );
-  println!("[1] Booting on: {}", bsp::raspi::board_name());
+  println!("[1] Booting on: {}", raspi::board_name());
   println!("[2] Loading Drivers");
 
-  let driverlist = bsp::raspi::driver::manager().list_drivers();
+  let driverlist = driver::manager().list_drivers();
   for (i, _driver) in driverlist.iter().enumerate() {
     println!("\t[{}] {}", i + 1, _driver.compatible())
   }
@@ -68,7 +68,7 @@ fn __main__() {
   println!("\n[3] Hello World!\n");
   println!(
     "[4] Characters Written: {:?}",
-    bsp::serial::serial().chars_written()
+    raspi::serial().chars_written()
   );
   
   println!("[X] Kernel End");

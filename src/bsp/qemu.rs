@@ -85,6 +85,7 @@ static _QEMU: SafeQEMUOutput = SafeQEMUOutput {
 };
 
 /// Return a reference to the console.
-pub fn _serial() -> &'static SafeQEMUOutput {
+#[allow(dead_code)]
+pub fn serial() -> &'static SafeQEMUOutput {
   &_QEMU
 }

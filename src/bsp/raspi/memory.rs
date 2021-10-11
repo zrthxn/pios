@@ -1,7 +1,7 @@
 /// BSP Memory Management.
 /// The board's physical memory map.
 
-pub mod map {
+pub(super) mod map {
   pub const GPIO_OFFSET: usize = 0x0020_0000;
   pub const UART_OFFSET: usize = 0x0020_1000;
 
