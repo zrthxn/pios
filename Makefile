@@ -11,10 +11,12 @@ endef
 LINKER_FILE = linker/rpi3.ld
 export LINKER_FILE
 
-BOOT_SRC = boot/boot.S
-BOOT_OBJ = boot/boot.o
+TARGET_ARCH = aarch64
 TARGET_CPU = cortex-a53
 TARGET_RUSTC = aarch64-unknown-none-softfloat
+
+BOOT_SRC = boot/$(TARGET_ARCH).S
+BOOT_OBJ = boot/$(TARGET_ARCH).o
 KERNEL_ELF = target/$(TARGET_RUSTC)/release/pios
 KERNEL_BIN = target/$(TARGET_RUSTC)/release/kernel8.img
 
@@ -35,7 +37,7 @@ ASSEMBLER_ARGS = \
 
 
 # rustc compiler
-RUSTC_CMD = cargo +nightly rustc $(RUSTC_ARGS)
+RUSTC_CMD = cargo rustc $(RUSTC_ARGS)
 RUSTC_ARGS = \
 	--target=$(TARGET_RUSTC)  \
 	--features bsp_rpi4       \

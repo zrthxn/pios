@@ -1,4 +1,4 @@
-__load_addr = 0x080000;
+__load_addr = 0x80000;
 
 ENTRY(__load_addr)
 
