@@ -25,30 +25,24 @@ mod sync;
 /// - Only a single core must be active and running this function.
 /// - The init calls in this function must appear in the correct order.
 #[no_mangle]
-pub unsafe fn _start_rust() {
+pub unsafe fn _start_rust() -> ! {
   use crate::driver::interface::DriverManager;
-  use crate::bsp::driver;
+  use crate::bsp::drivers::manager;
 
-  println!("[-] Init Boot");
-
-  for _driver in driver::manager().list_drivers().iter() {
-    print!("\t[-] Loading ({})", _driver.compatible());
+  for _driver in manager().list_drivers().iter() {
     if let Err(e) = _driver.init() {
       panic!("\t[x] Error loading driver: {}: {}", _driver.compatible(), e);
     }
-    print!("\t[DONE]\n");
   }
-
-  println!("[-] Drivers Initialized\n");
-  driver::manager().on_initialized();
-
+  
+  manager().on_initialized();
   __main__()
 }
 
 /// Init Rust code
 #[no_mangle]
-fn __main__() {
-  use crate::bsp::{raspi, driver};
+fn __main__() -> ! {
+  use crate::bsp::{raspi, drivers};
   use crate::console::interface::Interactive;
   use crate::driver::interface::DriverManager;
 
@@ -60,7 +54,7 @@ fn __main__() {
   println!("[1] Booting on: {}", raspi::board_name());
   println!("[2] Loading Drivers");
 
-  let driverlist = driver::manager().list_drivers();
+  let driverlist = drivers::manager().list_drivers();
   for (i, _driver) in driverlist.iter().enumerate() {
     println!("\t[{}] {}", i + 1, _driver.compatible())
   }
@@ -72,4 +66,7 @@ fn __main__() {
   );
   
   println!("[X] Kernel End");
+  loop {
+
+  }
 }

@@ -3,10 +3,8 @@ use crate::{bsp, cpu};
 use core::{fmt, panic::PanicInfo};
 
 fn _panic_print(args: fmt::Arguments) {
-  // use fmt::Write;
-  // unsafe { bsp::raspi::panic_serial().write_fmt(args).unwrap() };
-  use crate::console::interface::Interactive;
-  bsp::qemu::serial().write_fmt(args).unwrap();
+  use fmt::Write;
+  unsafe { bsp::raspi::panic_serial().write_fmt(args).unwrap() };
 }
 
 /// Prints with a newline - only use from the panic handler.

@@ -40,7 +40,7 @@ ASSEMBLER_ARGS = \
 RUSTC_CMD = cargo rustc $(RUSTC_ARGS)
 RUSTC_ARGS = \
 	--target=$(TARGET_RUSTC)  \
-	--features bsp_rpi4       \
+	--features bsp_rpi3       \
 	--release                 \
 
 RUSTC_TCPU = -C target-cpu=$(TARGET_CPU)

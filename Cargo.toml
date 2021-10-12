@@ -18,8 +18,8 @@ path = "src/main.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tock-registers = { version = "0.7.x", optional = true, default-features = false, features = ["register_types"] }
+tock-registers = { version = "=0.7.0", optional = true, default-features = false, features = ["register_types"] }
 
 # Platform specific dependencies
 [target.'cfg(target_arch = "aarch64")'.dependencies]
-cortex-a = { version = "6.x.x" }
+cortex-a = { version = "=6.0.0" }
