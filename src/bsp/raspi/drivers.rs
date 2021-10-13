@@ -1,8 +1,9 @@
 use crate::driver;
 use driver::interface::DeviceDriver;
 
+/// Device Driver Manager type.
 struct BSPDriverManager {
-  drivers: [ &'static (dyn DeviceDriver + Sync); 2 ]
+  drivers: [ &'static (dyn DeviceDriver + Sync); 4 ]
 }
 
 impl driver::interface::DriverManager for BSPDriverManager {
@@ -12,12 +13,18 @@ impl driver::interface::DriverManager for BSPDriverManager {
 
   fn on_initialized(&self) {
     super::GPIO.map_pl011_uart();
+    super::GPU.init_framebuffer();
   }
 }
 
-/// Device Driver Manager type.
+/// Device Drivers in order of init
 static BSP_DRIVER_MAGANER: BSPDriverManager = BSPDriverManager {
-  drivers: [&super::GPIO, &super::UART]
+  drivers: [
+    &super::GPIO, 
+    &super::UART,
+    &super::MAILBOX,
+    &super::GPU,
+  ]
 };
 
 /// Return a reference to the driver manager.

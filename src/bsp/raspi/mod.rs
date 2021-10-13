@@ -1,15 +1,29 @@
 mod cpu;
 pub mod memory;
 pub mod drivers;
+pub mod video;
+pub mod serial;
 
+pub use serial::*;
+pub use memory::map::mmio;
 use super::devices;
 
 /// Global instances
-pub static GPIO: devices::bcm2xxx::GPIO =
-  unsafe { devices::bcm2xxx::GPIO::new(memory::map::mmio::GPIO_START) };
+pub static GPIO: devices::gpio::GPIO = unsafe { 
+  devices::gpio::GPIO::new(mmio::GPIO_START) 
+};
 
-pub static UART: devices::bcm2xxx::PL011UART =
-  unsafe { devices::bcm2xxx::PL011UART::new(memory::map::mmio::PL011_UART_START) };
+pub static UART: devices::uart::PL011UART = unsafe { 
+  devices::uart::PL011UART::new(mmio::PL011_UART_START) 
+};
+
+pub static MAILBOX: devices::mailbox::MAILBOX = unsafe { 
+  devices::mailbox::MAILBOX::new(mmio::MAILBOX_START) 
+};
+
+pub static GPU: devices::vc::GPU = unsafe { 
+  devices::vc::GPU::new() 
+};
 
 /// Board identification.
 pub fn board_name() -> &'static str {
@@ -23,6 +37,3 @@ pub fn board_name() -> &'static str {
     "Raspberry Pi 4"
   }
 }
-
-pub mod serial;
-pub use serial::*;

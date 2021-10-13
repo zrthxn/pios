@@ -16,8 +16,8 @@ use super::{memory, UART};
 /// - Use only for printing during a panic.
 #[allow(dead_code)]
 pub unsafe fn panic_serial() -> impl fmt::Write {
-  let mut panic_gpio = devices::bcm2xxx::PanicGPIO::new(memory::map::mmio::GPIO_START);
-  let mut panic_uart = devices::bcm2xxx::PanicUart::new(memory::map::mmio::PL011_UART_START);
+  let mut panic_gpio = devices::gpio::PanicGPIO::new(memory::map::mmio::GPIO_START);
+  let mut panic_uart = devices::uart::PanicUart::new(memory::map::mmio::PL011_UART_START);
 
   panic_gpio.map_pl011_uart();
   panic_uart.init();
