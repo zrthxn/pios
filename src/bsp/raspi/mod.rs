@@ -1,6 +1,5 @@
 mod cpu;
-mod memory;
-
+pub mod memory;
 pub mod drivers;
 
 use super::devices;

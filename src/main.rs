@@ -1,7 +1,8 @@
-#![feature(format_args_nl)]
+#![feature(asm)]
 #![feature(global_asm)]
-#![feature(panic_info_message)]
 #![feature(trait_alias)]
+#![feature(format_args_nl)]
+#![feature(panic_info_message)]
 #![feature(const_fn_fn_ptr_basics)]
 
 #![allow(clippy::upper_case_acronyms)]
@@ -36,33 +37,24 @@ pub unsafe fn _start_rust() -> ! {
   }
   
   manager().on_initialized();
+
+  println!("[-] Device drivers loaded");
+  println!("[-] Booting on [{}]\n", bsp::board_name());
+
   __main__()
 }
 
 /// Init Rust code
 #[no_mangle]
 fn __main__() -> ! {
-  use crate::bsp::{raspi, drivers};
   use crate::console::interface::Interactive;
-  use crate::driver::interface::DriverManager;
+  
+  printpkg!();
 
+  println!("\nHello World!\n");
   println!(
-    "[0] {} version {}",
-    env!("CARGO_PKG_NAME"),
-    env!("CARGO_PKG_VERSION")
-  );
-  println!("[1] Booting on: {}", raspi::board_name());
-  println!("[2] Loading Drivers");
-
-  let driverlist = drivers::manager().list_drivers();
-  for (i, _driver) in driverlist.iter().enumerate() {
-    println!("\t[{}] {}", i + 1, _driver.compatible())
-  }
-
-  println!("\n[3] Hello World!\n");
-  println!(
-    "[4] Characters Written: {:?}",
-    raspi::serial().chars_written()
+    "Characters Written: {:?}",
+    bsp::serial().chars_written()
   );
   
   println!("[X] Kernel End");
@@ -70,3 +62,4 @@ fn __main__() -> ! {
 
   }
 }
+

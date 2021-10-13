@@ -25,3 +25,17 @@ macro_rules! println {
     $crate::print::_print(format_args_nl!($($arg)*));
   })
 }
+
+/// Prints package name and version.
+///
+/// Carbon copy from <https://doc.rust-lang.org/src/std/macros.rs.html>
+#[macro_export]
+macro_rules! printpkg {
+  () => (
+    $crate::print!(
+      "[v] {} version {}\n",
+      env!("CARGO_PKG_NAME"),
+      env!("CARGO_PKG_VERSION")
+    )
+  );
+}

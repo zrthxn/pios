@@ -4,7 +4,6 @@ define colorecho
 	@tput sgr0 2> /dev/null || true
 endef
 
-
 # =====================================
 # Variables----------------------------
 
@@ -57,6 +56,16 @@ QEMU_ARGS = \
 	-serial stdio \
 
 
+# Docker run 
+DOCKER_IMG = rustembedded/osdev-utils
+DOCKER_CMD = docker run -it --rm $(DOCKER_ARGS) $(DOCKER_IMG)
+DOCKER_ARGS = \
+	--privileged                          \
+	-v /dev:/dev                          \
+	-v $(shell pwd):/kernel/src           \
+	-v $(shell pwd)/common:/kernel/common \
+	-w /kernel/src
+
 # =====================================
 # Targets -----------------------------
 
@@ -72,14 +81,18 @@ build: boot
 	$(call colorecho, "Compiling Kernel")
 	RUSTFLAGS="$(RUSTFLAGS)" $(RUSTC_CMD)
 
-kernel: boot build
+kernel: build
 	$(call colorecho, "Building Kernel image")
 	$(OBJCOPY) $(KERNEL_ELF) $(KERNEL_BIN)
 
-qemu: boot build kernel
+qemu: kernel
 	$(call colorecho, "Run QEMU")
 	$(QEMU_CMD) -kernel $(KERNEL_BIN)
 
+push: kernel
+	$(call colorecho, "Loading Kernel to device")
+	$(DOCKER_CMD) ruby common/serial/minipush.rb $(DEV_SERIAL) $(KERNEL_BIN)
+
 clean:
 	$(call colorecho, "Cleanup")
-	rm $(BOOT_OBJ) 
+	rm $(BOOT_OBJ)
