@@ -59,7 +59,7 @@ impl MailboxInner {
     }
   }
 
-  fn read_channel(&mut self, c: u8) -> u32 {
+  fn read_channel(&self, c: u8) -> u32 {
     // Immediately zero out top 4 bits if any
     let channel = c & 0xF;
 
@@ -74,7 +74,7 @@ impl MailboxInner {
     self.registers.READ.read(READ::DATA) as u32
   }
 
-  fn write_channel(&mut self, c: u8, d: u32) {
+  fn write_channel(&self, c: u8, d: u32) {
     // Immediately zero out top 4 bits if any
     let channel = c & 0x0F;
     // Immediately zero out bottom 4 bits if any, append channel
@@ -100,11 +100,11 @@ impl MAILBOX {
     }
   }
 
-  fn read_channel(&mut self, c: u8) -> u32 {
+  pub fn read_channel(&self, c: u8) -> u32 {
     self.inner.lock(|inner| inner.read_channel(c))
   }
 
-  fn write_channel(&mut self, c: u8, d: u32) -> u32 {
+  pub fn write_channel(&self, c: u8, d: u32) {
     self.inner.lock(|inner| inner.write_channel(c, d))
   }
 }

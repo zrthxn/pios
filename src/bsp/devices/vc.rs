@@ -15,7 +15,9 @@ impl GPU {
   }
 
   pub fn init_framebuffer(&self) {
-    bsp::MAILBOX.read_channel(1);
+    unsafe {
+      bsp::MAILBOX.read_channel(1);
+    }
   }
 }
 
