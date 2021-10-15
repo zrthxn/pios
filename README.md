@@ -12,8 +12,8 @@ I want this to be able to
 - [x] Run on real hardware
 - [x] Connect to serial UART via USB
 - [x] Be loaded dynamically for dev
-- [ ] Keep track of time
-- [ ] Display some text on a monitor
+- [x] Keep track of time
+- [x] Display some text on a monitor
 - [ ] Take text input via keyboard
 - [ ] Run some binaries by giving unix like commands
 - [ ] Basic handling of files
