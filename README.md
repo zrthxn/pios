@@ -62,3 +62,5 @@ A huge thanks to [Andre Richter](https://github.com/andre-richter) for providing
 foundation of this little project.
 Thanks to the teams at [Rust Embedded](https://github.com/rust-embedded) and 
 [Tock](https://github.com/tock) who build some great libraries for this use.
+Also a GIANT thanks to [Jake Sandler](https://github.com/jsandler18) for his [excellent tutorial blog](https://jsandler18.github.io/)
+where he documents so many things which are just nowhere else on the internet

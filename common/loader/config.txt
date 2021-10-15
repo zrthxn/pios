@@ -1,4 +1,2 @@
 arm_64bit=1
 init_uart_clock=48000000
-gpu_mem_1024
-hdmi_safe=1
