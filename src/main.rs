@@ -35,12 +35,11 @@ pub unsafe fn _start_rust() -> ! {
       panic!("\t[x] Error loading driver: {}: {}", _driver.compatible(), e);
     }
   }
-  
-  manager().on_initialized();
 
   println!("[-] Device drivers loaded");
   println!("[-] Booting on [{}]\n", bsp::board_name());
-
+  
+  manager().on_initialized();
   __main__()
 }
 
@@ -54,7 +53,7 @@ fn __main__() -> ! {
   println!("\nHello World!\n");
   println!(
     "Characters Written: {:?}",
-    bsp::serial().chars_written()
+    bsp::serial::serial().chars_written()
   );
   
   println!("[X] Kernel End");

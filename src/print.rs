@@ -4,7 +4,7 @@ use core::fmt;
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
   use crate::console::interface::Interactive;
-  bsp::raspi::serial().write_fmt(args).unwrap();
+  bsp::serial::serial().write_fmt(args).unwrap();
 }
 
 /// Prints without a newline.

@@ -15,9 +15,11 @@ impl GPU {
   }
 
   pub fn init_framebuffer(&self) {
-    unsafe {
-      bsp::MAILBOX.read_channel(1);
-    }
+    bsp::MAILBOX.set_screensize_msg([
+      bsp::raspi::video::VIDEO::RESOLUTION::WIDTH as u32,
+      bsp::raspi::video::VIDEO::RESOLUTION::HEIGHT as u32,
+      bsp::raspi::video::VIDEO::COLOR_DEPTH as u32,
+    ])
   }
 }
 

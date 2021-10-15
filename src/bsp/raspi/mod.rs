@@ -4,7 +4,6 @@ pub mod drivers;
 pub mod video;
 pub mod serial;
 
-pub use serial::*;
 pub use memory::map::mmio;
 use super::devices;
 

@@ -3,11 +3,11 @@
 // Font renderring/Rendering Characters
 
 #[rustfmt::skip]
-pub(super) mod VIDEO {
+pub mod VIDEO {
   pub const COLOR_DEPTH: u8 = 8;
 
   pub mod RESOLUTION {
-    pub const HEIGHT: u16 = 1024;
-    pub const WIDTH:  u16 = 768;
+    pub const HEIGHT: u16 = 480;
+    pub const WIDTH:  u16 = 640;
   }
 }
