@@ -1,18 +1,15 @@
-// use core::alloc;
-use core::alloc::Layout;
 use core::mem::{size_of, size_of_val};
-use core::ptr::{addr_of, read_volatile};
+use core::ptr::{addr_of, read_volatile, write_volatile};
 
-use crate::{print, println};
+use crate::{info, print, println, warn};
 use crate::sync::interface::Mutex;
 use crate::{cpu, driver, sync::NullLock};
 use crate::bsp::devices::common::MMIODerefWrapper;
 
-use tock_registers::interfaces::ReadWriteable;
 use tock_registers::{
   interfaces::{Readable, Writeable},
   register_bitfields, register_structs,
-  registers::{ReadOnly, ReadWrite, WriteOnly},
+  registers::{ReadOnly, WriteOnly},
 };
 
 // Mailbox registers.
@@ -25,49 +22,41 @@ register_bitfields! {
   // The low 4 bits of the register denote which channel the message is from, 
   // and the high 28 bits are data. 
   READ [
-    CHANNEL OFFSET(0) NUMBITS(4) [],
-    DATA OFFSET(4) NUMBITS(28) [],
+    CHANNEL OFFSET(0) NUMBITS(4),
+    DATA OFFSET(4) NUMBITS(28),
   ],
 
-  // READ_STATUS [
-  //   // READ_EMPTY OFFSET(30) NUMBITS(1) [],
-  //   STATUS [],
-  // ],
+  READ_STATUS [
+    READ_EMPTY OFFSET(30) NUMBITS(1),
+    READ_FULL OFFSET(31) NUMBITS(1),
+  ],
 
   // The Status register is at offset 0x18 from the mailbox base. 
   // Bit 30 of this register can tell you whether the Read register is empty and 
   // bit 31 can tell you whether the Write register is full. 
-  STATUS [
-    READ_EMPTY OFFSET(30) NUMBITS(1) [],
-    WRITE_FULL OFFSET(31) NUMBITS(1) [],
-  ],
+  // STATUS [
+  //   READ_EMPTY OFFSET(30) NUMBITS(1),
+  //   WRITE_FULL OFFSET(31) NUMBITS(1),
+  // ],
 
   // The Write Register is at offset 0x20, and has similar form to the Read register.
   WRITE [
-    CHANNEL OFFSET(0) NUMBITS(4) [],
-    DATA OFFSET(4) NUMBITS(28) [],
+    DATA OFFSET(0) NUMBITS(32),
   ],
 
-  // WRITE_STATUS [
-  //   // WRITE_FULL OFFSET(31) NUMBITS(1) [],
-  //   WRITE_FULL [],
-  // ],
-  
-  // WRITE_STATUS [
-  //   READ_EMPTY OFFSET(30) NUMBITS(1) [],
-  //   WRITE_FULL OFFSET(31) NUMBITS(1) [],
-  // ],
-
+  WRITE_STATUS [
+    WRITE_EMPTY OFFSET(30) NUMBITS(1),
+    WRITE_FULL OFFSET(31) NUMBITS(1),
+  ],
 }
 
 register_structs! {
   #[allow(non_snake_case)]
   pub RegisterBlock {
     (0x00 => READ: ReadOnly<u32, READ::Register>),
-    (0x18 => STATUS: ReadOnly<u32, STATUS::Register>),
-    // (0x18 => READ_STATUS: ReadOnly<u32, READ_STATUS::Register>),
-    (0x20 => WRITE: ReadWrite<u32, WRITE::Register>),
-    // (0x38 => WRITE_STATUS: ReadOnly<u32, WRITE_STATUS::Register>),
+    (0x18 => READ_STATUS: ReadOnly<u32, READ_STATUS::Register>),
+    (0x20 => WRITE: WriteOnly<u32, WRITE::Register>),
+    (0x38 => WRITE_STATUS: ReadOnly<u32, WRITE_STATUS::Register>),
     (0x41 => @END),
     // (0x24 => @END),
   }
@@ -90,38 +79,37 @@ impl MailboxInner {
   /// it will cause the CPU to freeze. 
   fn read_channel(&self, c: u8) -> u32 {
     // Immediately zero out top 4 bits if any
-    let channel = c & 0xF;
+    let channel = c & 0x0F;
+
+    // If there is no data, return 0
+    if self.registers.READ_STATUS.matches_all(READ_STATUS::READ_EMPTY::SET) {
+      return 0 as u32;
+    }
 
     // Spin until we have data for our channel and its not empty
-    while 
-      self.registers.READ.read(READ::CHANNEL) as u8 != channel &&
-      self.registers.STATUS.matches_all(STATUS::READ_EMPTY::CLEAR)
-    {
+    while self.registers.READ.read(READ::CHANNEL) as u8 != channel {
       cpu::nop();
     }
 
-    self.registers.READ.read(READ::DATA) as u32
+    unsafe{ read_volatile((0x3F00_B880) as *mut u32) as u32 }
+    // For some reason these calls don't actually write anything?
+    // self.registers.READ.read(READ::DATA) as u32
   }
 
   fn write_channel<T>(&self, c: u8, d: *const T) {
     // Immediately zero out top 4 bits if any
     let channel = (c & 0x0F) as u32;
     // Immediately zero out bottom 4 bits if any, append channel
-    let data = ((d as u32) & 0x0FFFFFF0) | channel as u32;
-    // let data = (d as u32) >> 4;
-    println!("WRITE MBOX {:#x?}", data);
-    // let data = (d as u32);
+    let data = ((d as u32) & 0xFFFF_FFF0) | channel;
 
     // Spin until we can write
-    while self.registers.STATUS.matches_all(STATUS::WRITE_FULL::SET) {
+    while self.registers.WRITE_STATUS.matches_all(WRITE_STATUS::WRITE_FULL::SET) {
       cpu::nop();
     }
 
-    self.registers.WRITE.set(data);
-    // self.registers.WRITE.modify(WRITE::CHANNEL.val(channel));
-    // self.registers.WRITE.modify(WRITE::DATA.val(data));
-    // self.registers.WRITE.modify_no_read(self.registers.WRITE, WRITE::CHANNEL.val(channel));
-    // self.registers.WRITE.modify_no_read(self.registers.WRITE, WRITE::DATA.val(data));
+    unsafe{ write_volatile((0x3F00_B880 + 0x20) as *mut _, data);}
+    // For some reason these calls don't actually write anything?
+    // self.registers.WRITE.write(WRITE::DATA.val(data));
   }
 }
 
@@ -169,42 +157,33 @@ impl MAILBOX {
     // };
 
     let message: Aligned<A16, [u32; 20]> = Aligned([
-      80,
-      0,
-      TagType::SET_SCREEN_SIZE,     8, 0, values[0], values[1],
-      TagType::SET_VIRTUAL_ADDRESS, 8, 0, values[0], values[1],
-      TagType::SET_COLOR_DEPTH,     4, 0, values[2] * 3,
+      80, 
+      MessageCode::REQUEST,
+      TagType::SET_SCREEN_SIZE,     8, MessageCode::REQUEST, values[0], values[1],
+      TagType::SET_VIRTUAL_ADDRESS, 8, MessageCode::REQUEST, values[0], values[1],
+      TagType::SET_COLOR_DEPTH,     4, MessageCode::REQUEST, values[2],
       TagType::NULL,
       0,0,0
     ]);
 
-    println!("Sizeof MBM {}", size_of_val(&message));
-    println!("Addrof MBM {:#x?}", addr_of!(message) as u32);
-
     self.write_channel(8, addr_of!(message));
-    println!("Sent set_screensize_msg");
-    
-    // Just wait 10 cycles
-    for _ in 0..10 {
-      cpu::nop();
-    }
 
-    unsafe {
-      // let response = self.read_channel(8) as *const MailboxMessage;
-
-      println!("Rv READ {:#x?}", read_volatile((0x3F00_B880 + 0x0000_0000) as *const u32) as u32);
-      println!("Rv STATUS {:#x?}", read_volatile((0x3F00_B880 + 0x0000_0018) as *const u32) as u32);
-      println!("Rv WRITE {:#x?}", read_volatile((0x3F00_B880 + 0x0000_0020) as *const u32) as u32);
-
-      println!("Response code {:x}", message[1]);
-      println!("Rv Response code {}", read_volatile(
-        (((addr_of!(message) as *const u32) as u32) + 4) as *const u32 
-      ));
+    if message[1] == MessageCode::RESERROR {
+      warn!("Error! Response code {:x}", message[1]);
     }
   }
 
-  pub fn get_framebuffer_msg(&self, values: [u64;1]) {
+  pub fn get_framebuffer_msg(&self) -> (u32,u32) {
+    let message: Aligned<A16, [u32; 8]> = Aligned([
+      32,
+      MessageCode::REQUEST,
+      TagType::ALLOCATE_BUFFER, 8, MessageCode::REQUEST, 16, 0,
+      TagType::NULL
+    ]);
 
+    self.write_channel(8, addr_of!(message));
+    info!("Assigned framebuffer at {:#x?} of {} bytes", message[5], message[6]);
+    ( message[5], message[6] )
   }
 }
 
@@ -216,19 +195,26 @@ impl driver::interface::DeviceDriver for MAILBOX {
 
 #[allow(non_camel_case_types)]
 mod TagType {
-  pub const ALLOCATE_BUFFER    : u32 = 0x00004001;
-  pub const RELEASE_BUFFER     : u32 = 0x00004801;
+  pub const ALLOCATE_BUFFER    : u32 = 0x0004_0001;
+  pub const RELEASE_BUFFER     : u32 = 0x0004_8001;
 
-  pub const GET_SCREEN_SIZE    : u32 = 0x00004003;
-  pub const GET_VIRTUAL_ADDRESS: u32 = 0x00004004;
-  pub const GET_COLOR_DEPTH    : u32 = 0x00004005;
-  pub const GET_BYTES_PER_ROW  : u32 = 0x00004008;
+  pub const GET_SCREEN_SIZE    : u32 = 0x0004_0003;
+  pub const GET_VIRTUAL_ADDRESS: u32 = 0x0004_0004;
+  pub const GET_COLOR_DEPTH    : u32 = 0x0004_0005;
+  pub const GET_BYTES_PER_ROW  : u32 = 0x0004_0008;
 
-  pub const SET_SCREEN_SIZE    : u32 = 0x00004803;
-  pub const SET_VIRTUAL_ADDRESS: u32 = 0x00004804;
-  pub const SET_COLOR_DEPTH    : u32 = 0x00004805;
+  pub const SET_SCREEN_SIZE    : u32 = 0x0004_8003;
+  pub const SET_VIRTUAL_ADDRESS: u32 = 0x0004_8004;
+  pub const SET_COLOR_DEPTH    : u32 = 0x0004_8005;
 
-  pub const NULL               : u32 = 0x0000000;
+  pub const NULL               : u32 = 0x000_0000;
+}
+
+#[allow(non_camel_case_types)]
+mod MessageCode {
+  pub const REQUEST  : u32 = 0x0000_0000;
+  pub const RESPONSE : u32 = 0x8000_0000;
+  pub const RESERROR : u32 = 0x8000_0001;
 }
 
 // impl TagType {

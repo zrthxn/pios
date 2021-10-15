@@ -4,7 +4,7 @@
 
 #[rustfmt::skip]
 pub mod VIDEO {
-  pub const COLOR_DEPTH: u8 = 8;
+  pub const COLOR_DEPTH: u8 = 24;
 
   pub mod RESOLUTION {
     pub const HEIGHT: u16 = 480;

@@ -52,7 +52,6 @@ OBJCOPY = aarch64-none-elf-objcopy --strip-all -O binary
 QEMU_CMD = qemu-system-aarch64 $(QEMU_ARGS)
 QEMU_ARGS = \
 	-M raspi3     \
-	-display none \
 	-serial stdio \
 
 

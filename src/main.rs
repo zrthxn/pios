@@ -17,6 +17,8 @@ mod panicinf;
 mod console;
 mod print;
 mod sync;
+mod time;
+mod exception;
 
 /// Early init code. The Rust entry of the `kernel` binary.
 /// The function is called from the assembly `_start` function.
@@ -26,9 +28,12 @@ mod sync;
 /// - Only a single core must be active and running this function.
 /// - The init calls in this function must appear in the correct order.
 #[no_mangle]
-pub unsafe fn _start_rust() -> ! {
+pub unsafe fn __init__() -> ! {
   use crate::driver::interface::DriverManager;
   use crate::bsp::drivers::manager;
+
+  println!("[-] Init boot sequence");
+  println!("[-] Booting on [{}]", bsp::board_name());
 
   for _driver in manager().list_drivers().iter() {
     if let Err(e) = _driver.init() {
@@ -36,10 +41,26 @@ pub unsafe fn _start_rust() -> ! {
     }
   }
 
-  println!("[-] Device drivers loaded");
-  println!("[-] Booting on [{}]\n", bsp::board_name());
-  
   manager().on_initialized();
+  println!();
+
+  info!("Device drivers loaded");
+  for _driver in manager().list_drivers().iter() {
+    info!("[-] {}", _driver.compatible());
+  }
+
+  let (_, privilege_level) = cpu::exception::current_privilege_level();
+  info!("Current privilege level [{}]", privilege_level);
+
+  info!("Exception handling state");
+  cpu::exception::asynchronous::print_state();
+
+  use time::interface::TimeManager;
+  let time_res = cpu::time::time_manager().resolution();
+  info!("Architectural timer resolution: {} ns", time_res.as_nanos());
+
+  println!();
+  
   __main__()
 }
 
@@ -51,10 +72,8 @@ fn __main__() -> ! {
   printpkg!();
 
   println!("\nHello World!\n");
-  println!(
-    "Characters Written: {:?}",
-    bsp::serial::serial().chars_written()
-  );
+  bsp::GPU.cls();
+  bsp::GPU.white();
   
   println!("[X] Kernel End");
   loop {
