@@ -1,7 +1,6 @@
-use core::mem::{size_of, size_of_val};
 use core::ptr::{addr_of, read_volatile, write_volatile};
 
-use crate::{info, print, println, warn};
+use crate::{info, warn};
 use crate::sync::interface::Mutex;
 use crate::{cpu, driver, sync::NullLock};
 use crate::bsp::devices::common::MMIODerefWrapper;
@@ -161,7 +160,7 @@ impl MAILBOX {
       MessageCode::REQUEST,
       TagType::SET_SCREEN_SIZE,     8, MessageCode::REQUEST, values[0], values[1],
       TagType::SET_VIRTUAL_ADDRESS, 8, MessageCode::REQUEST, values[0], values[1],
-      TagType::SET_COLOR_DEPTH,     4, MessageCode::REQUEST, values[2],
+      TagType::SET_COLOR_DEPTH,     4, MessageCode::REQUEST, values[2] * 3,
       TagType::NULL,
       0,0,0
     ]);

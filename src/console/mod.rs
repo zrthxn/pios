@@ -1,3 +1,6 @@
+pub mod text;
+pub mod font;
+
 pub mod interface {
   use core::fmt;
 

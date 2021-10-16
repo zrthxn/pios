@@ -4,4 +4,4 @@ pub mod common;
 pub mod gpio;
 pub mod uart;
 pub mod mailbox;
-pub mod vc;
+pub mod gpu;

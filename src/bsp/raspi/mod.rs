@@ -20,8 +20,8 @@ pub static MAILBOX: devices::mailbox::MAILBOX = unsafe {
   devices::mailbox::MAILBOX::new(mmio::MAILBOX_START) 
 };
 
-pub static GPU: devices::vc::GPU = unsafe { 
-  devices::vc::GPU::new() 
+pub static GPU: devices::gpu::GPU = unsafe { 
+  devices::gpu::GPU::new() 
 };
 
 /// Board identification.

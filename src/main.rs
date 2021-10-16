@@ -72,8 +72,9 @@ fn __main__() -> ! {
   printpkg!();
 
   println!("\nHello World!\n");
-  bsp::GPU.cls();
-  bsp::GPU.white();
+  // bsp::GPU.cls();
+  // bsp::GPU.white();
+  bsp::GPU.write_hello_world();
   
   println!("[X] Kernel End");
   loop {
