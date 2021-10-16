@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use core::ptr::{addr_of, read_volatile, write_volatile};
 
 use crate::{info, warn};
