@@ -122,7 +122,7 @@ impl GPIOInner {
   /// Disable pull-up/down on pins 14 and 15.
   #[cfg(feature = "bsp_rpi3")]
   fn disable_pud_14_15_bcm2837(&mut self) {
-    use crate::cpu;
+    use crate::arch::cpu;
 
     // Make an educated guess for a good delay value (Sequence described in the BCM2837
     // peripherals PDF).

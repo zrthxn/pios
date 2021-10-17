@@ -1,4 +1,4 @@
-pub use crate::cpu::exception::current_privilege_level;
+pub use crate::arch::exception::current_privilege_level;
 
 /// Kernel privilege levels.
 #[allow(missing_docs)]

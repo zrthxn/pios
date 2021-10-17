@@ -1,5 +1,5 @@
 //! A panic handler that infinitely waits.
-use crate::{bsp, cpu};
+use crate::{bsp, arch::cpu};
 use core::{fmt, panic::PanicInfo};
 
 fn _panic_print(args: fmt::Arguments) {

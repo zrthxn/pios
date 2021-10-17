@@ -5,7 +5,7 @@
 //! - <https://github.com/raspberrypi/documentation/files/1888662/BCM2837-ARM-Peripherals.-.Revised.-.V2-1.pdf>
 //! - <https://developer.arm.com/documentation/ddi0183/latest>
 
-use crate::{console, cpu, driver};
+use crate::{console, arch::cpu, driver};
 use crate::bsp::devices::common::MMIODerefWrapper;
 use crate::sync::{NullLock, interface::Mutex};
 use core::fmt;

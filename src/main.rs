@@ -11,7 +11,7 @@
 #![no_main]
 
 mod bsp;
-mod cpu;
+mod arch;
 mod driver;
 mod panicinf;
 mod console;
@@ -49,14 +49,14 @@ pub unsafe fn __init__() -> ! {
     info!("[-] {}", _driver.compatible());
   }
 
-  let (_, privilege_level) = cpu::exception::current_privilege_level();
+  let (_, privilege_level) = arch::exception::current_privilege_level();
   info!("Current privilege level [{}]", privilege_level);
 
   info!("Exception handling state");
-  cpu::exception::asynchronous::print_state();
+  arch::exception::asynchronous::print_state();
 
   use time::interface::TimeManager;
-  let time_res = cpu::time::time_manager().resolution();
+  let time_res = arch::time::time_manager().resolution();
   info!("Architectural timer resolution: {} ns", time_res.as_nanos());
 
   println!();

@@ -4,7 +4,7 @@ use core::ptr::{addr_of, read_volatile, write_volatile};
 
 use crate::{info, warn};
 use crate::sync::interface::Mutex;
-use crate::{cpu, driver, sync::NullLock};
+use crate::{arch::cpu, driver, sync::NullLock};
 use crate::bsp::devices::common::MMIODerefWrapper;
 
 use tock_registers::{
