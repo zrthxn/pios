@@ -8,7 +8,7 @@ use crate::{arch::cpu, driver, sync::NullLock};
 use crate::bsp::devices::common::MMIODerefWrapper;
 
 use tock_registers::{
-  interfaces::{Readable, Writeable},
+  interfaces::{Readable},
   register_bitfields, register_structs,
   registers::{ReadOnly, WriteOnly},
 };

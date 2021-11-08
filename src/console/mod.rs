@@ -41,3 +41,23 @@ pub mod interface {
 
   pub trait Interactive = Read + Write + Statistics;
 }
+
+pub static Console: text::Text = text::Text::new();
+
+/// Clears the console
+#[macro_export]
+macro_rules! clsc {
+  () => (Console.clear());
+}
+
+/// Writes a char or string
+#[macro_export]
+macro_rules! cout {
+  () => (Console.clear());
+}
+
+/// Reads a char or string
+#[macro_export]
+macro_rules! cin {
+  () => (Console.clear());
+}

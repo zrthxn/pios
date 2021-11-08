@@ -1,3 +1,5 @@
+/* LinkerScript for RaspberryPi 3B+ and related models */
+
 __load_addr = 0x80000;
 
 ENTRY(__load_addr)

@@ -34,6 +34,7 @@ pub unsafe fn __init__() -> ! {
 
   println!("[-] Init boot sequence");
   println!("[-] Booting on [{}]", bsp::board_name());
+  println!();
 
   for _driver in manager().list_drivers().iter() {
     if let Err(e) = _driver.init() {
@@ -42,7 +43,6 @@ pub unsafe fn __init__() -> ! {
   }
 
   manager().on_initialized();
-  println!();
 
   info!("Device drivers loaded");
   for _driver in manager().list_drivers().iter() {
@@ -67,18 +67,23 @@ pub unsafe fn __init__() -> ! {
 /// Init Rust code
 #[no_mangle]
 fn __main__() -> ! {
-  use crate::console::interface::Interactive;
+  use crate::console::Console;
   
   printpkg!();
 
   println!("\nHello World!\n");
-  // bsp::GPU.cls();
-  // bsp::GPU.white();
-  bsp::GPU.write_hello_world();
-  
-  println!("[X] Kernel End");
-  loop {
+  clsc!();
 
-  }
+  Console.write_str("HELLO\nLOE\0H");
+
+  // print!("{}", Console.read_char());
+  // print!("{}", Console.read_char());
+  // print!("{}", Console.read_char());
+  // print!("{}", Console.read_char());
+  // print!("{}", Console.read_char());
+  // println!();
+
+  println!("[X] Kernel End");
+  loop {}
 }
 
