@@ -74,14 +74,16 @@ fn __main__() -> ! {
   println!("\nHello World!\n");
   clsc!();
 
-  Console.write_str("HELLO\nLOE\0H");
+  Console.write_str("HELLO\n");
+  Console.write_str("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
+  Console.write_str("abcdefghijklmnopqrstuvwxyz\n");
+  Console.write_str("012345678990\n");
 
-  // print!("{}", Console.read_char());
-  // print!("{}", Console.read_char());
-  // print!("{}", Console.read_char());
-  // print!("{}", Console.read_char());
-  // print!("{}", Console.read_char());
-  // println!();
+  let (s, _s) = Console.read_str();
+  for i in 0..s {
+    print!("{}", _s[i])
+  }
+  print!("\n");
 
   println!("[X] Kernel End");
   loop {}
