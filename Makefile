@@ -70,9 +70,9 @@ DOCKER_ARGS = \
 
 .PHONY: all boot build kernel clean qemu
 
-all: boot build kernel clean
+all: boot build kernel
 
-boot:
+boot: clean
 	$(call colorecho, "Assembling Bootloader")
 	$(ASSEMBLER_CMD) -c $(BOOT_SRC) -o $(BOOT_OBJ)
 
@@ -94,4 +94,4 @@ push: kernel
 
 clean:
 	$(call colorecho, "Cleanup")
-	rm $(BOOT_OBJ)
+	@rm -f $(BOOT_OBJ)

@@ -77,7 +77,7 @@ fn __main__() -> ! {
   Console.write_str("HELLO\n");
   Console.write_str("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
   Console.write_str("abcdefghijklmnopqrstuvwxyz\n");
-  Console.write_str("012345678990\n");
+  Console.write_str("0123456789\n");
 
   let (s, _s) = Console.read_str();
   for i in 0..s {
