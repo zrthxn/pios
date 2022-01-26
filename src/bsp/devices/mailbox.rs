@@ -75,9 +75,9 @@ impl MailboxInner {
     }
   }
 
-  /// ## !CAUTION!
-  /// Calling this function IF there is no data to read, 
-  /// it will cause the CPU to freeze. 
+  /// ## CAUTION!
+  /// Calling this function when there is no data to read, 
+  /// will cause the CPU to freeze. 
   fn read_channel(&self, c: u8) -> u32 {
     // Immediately zero out top 4 bits if any
     let channel = c & 0x0F;
@@ -139,31 +139,16 @@ impl MAILBOX {
   }
 
   pub fn set_screensize_msg(&self, values: [u32;3]) {
-    // let screen_size = (values[0] << 32) | values[1];
-    // let message = MailboxMessage {
-    //   buffer_size: 80,
-    //   req_res_code: 0,
-    //   tags: &[
-    //     TagType::SET_SCREEN_SIZE,     8, 0, values[0], values[1],
-    //     TagType::SET_VIRTUAL_ADDRESS, 8, 0, values[0], values[1],
-    //     TagType::SET_COLOR_DEPTH,     4, 0, values[2] * 3,
-    //   ],
-    //   // tags: &[
-    //   //   MessageTag::new(TagType::SET_SCREEN_SIZE,     screen_size),
-    //   //   MessageTag::new(TagType::SET_VIRTUAL_ADDRESS, screen_size),
-    //   //   MessageTag::new(TagType::SET_COLOR_DEPTH,     values[2] * 3),
-    //   // ],
-    //   null: TagType::NULL,
-    //   padding: &[0,0,0]
-    // };
+    use MessageCode::REQUEST;
+    use TagType::{SET_COLOR_DEPTH, SET_SCREEN_SIZE, SET_VIRTUAL_ADDRESS, NULL};
 
     let message: Aligned<A16, [u32; 20]> = Aligned([
-      80, 
-      MessageCode::REQUEST,
-      TagType::SET_SCREEN_SIZE,     8, MessageCode::REQUEST, values[0], values[1],
-      TagType::SET_VIRTUAL_ADDRESS, 8, MessageCode::REQUEST, values[0], values[1],
-      TagType::SET_COLOR_DEPTH,     4, MessageCode::REQUEST, values[2] * 3,
-      TagType::NULL,
+      80,
+      REQUEST,
+      SET_SCREEN_SIZE,     8, REQUEST, values[0], values[1],
+      SET_VIRTUAL_ADDRESS, 8, REQUEST, values[0], values[1],
+      SET_COLOR_DEPTH,     4, REQUEST, values[2] * 3,
+      NULL,
       0,0,0
     ]);
 
@@ -175,11 +160,14 @@ impl MAILBOX {
   }
 
   pub fn get_framebuffer_msg(&self) -> (u32,u32) {
+    use MessageCode::REQUEST;
+    use TagType::{ALLOCATE_BUFFER, NULL};
+
     let message: Aligned<A16, [u32; 8]> = Aligned([
       32,
-      MessageCode::REQUEST,
-      TagType::ALLOCATE_BUFFER, 8, MessageCode::REQUEST, 16, 0,
-      TagType::NULL
+      REQUEST,
+      ALLOCATE_BUFFER, 8, REQUEST, 16, 0,
+      NULL
     ]);
 
     self.write_channel(8, addr_of!(message));
@@ -195,6 +183,7 @@ impl driver::interface::DeviceDriver for MAILBOX {
 }
 
 #[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
 mod TagType {
   pub const ALLOCATE_BUFFER    : u32 = 0x0004_0001;
   pub const RELEASE_BUFFER     : u32 = 0x0004_8001;
@@ -209,32 +198,33 @@ mod TagType {
   pub const SET_COLOR_DEPTH    : u32 = 0x0004_8005;
 
   pub const NULL               : u32 = 0x000_0000;
+
+  pub fn sizeof(tag: u32) -> u8 {
+    match tag {
+      ALLOCATE_BUFFER     => 8,
+      GET_SCREEN_SIZE     => 8,
+      SET_SCREEN_SIZE     => 8,
+      GET_VIRTUAL_ADDRESS => 8,
+      SET_VIRTUAL_ADDRESS => 8,
+
+      GET_COLOR_DEPTH     => 4,
+      SET_COLOR_DEPTH     => 4,
+      GET_BYTES_PER_ROW   => 4,
+      RELEASE_BUFFER      => 0,
+      NULL                => 0,
+      _                       => 0,
+    }
+  }
 }
 
 #[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
 mod MessageCode {
   pub const REQUEST  : u32 = 0x0000_0000;
   pub const RESPONSE : u32 = 0x8000_0000;
   pub const RESERROR : u32 = 0x8000_0001;
 }
 
-// impl TagType {
-//   fn size(&self) -> u8 {
-//     match &self {
-//       TagType::ALLOCATE_BUFFER     => 8,
-//       TagType::GET_SCREEN_SIZE     => 8,
-//       TagType::SET_SCREEN_SIZE     => 8,
-//       TagType::GET_VIRTUAL_ADDRESS => 8,
-//       TagType::SET_VIRTUAL_ADDRESS => 8,
-
-//       TagType::GET_COLOR_DEPTH     => 4,
-//       TagType::SET_COLOR_DEPTH     => 4,
-//       TagType::GET_BYTES_PER_ROW   => 4,
-//       TagType::RELEASE_BUFFER      => 0,
-//       TagType::NULL                => 0,
-//     }
-//   }
-// }
 
 pub struct MessageTag {
   pub tag_type: u32,

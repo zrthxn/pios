@@ -1,7 +1,6 @@
 use crate::console::font;
-use crate::{info, print, println};
 use crate::sync::{NullLock, interface::Mutex};
-use crate::bsp::{GPU, devices::gpu::Glyph};
+use crate::bsp::GPU;
 
 type ReadBuffer = [char; 1024];
 

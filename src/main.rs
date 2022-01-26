@@ -1,5 +1,3 @@
-#![feature(asm)]
-#![feature(global_asm)]
 #![feature(trait_alias)]
 #![feature(format_args_nl)]
 #![feature(panic_info_message)]
@@ -67,19 +65,19 @@ pub unsafe fn __init__() -> ! {
 /// Init Rust code
 #[no_mangle]
 fn __main__() -> ! {
-  use crate::console::Console;
+  use crate::console::CONSOLE;
   
   printpkg!();
 
   println!("\nHello World!\n");
   clsc!();
 
-  Console.write_str("HELLO\n");
-  Console.write_str("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
-  Console.write_str("abcdefghijklmnopqrstuvwxyz\n");
-  Console.write_str("0123456789\n");
+  CONSOLE.write_str("HELLO\n");
+  CONSOLE.write_str("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
+  CONSOLE.write_str("abcdefghijklmnopqrstuvwxyz\n");
+  CONSOLE.write_str("0123456789\n");
 
-  let (s, _s) = Console.read_str();
+  let (s, _s) = CONSOLE.read_str();
   for i in 0..s {
     print!("{}", _s[i])
   }
